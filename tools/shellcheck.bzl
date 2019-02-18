@@ -1,11 +1,9 @@
 def _shellcheck_test_implementation(ctx):
     args = ctx.actions.args()
-    args.add_all(ctx.files.src)
+    args.add_all(ctx.files.srcs)
     args.use_param_file("@%s", use_always = True)
-
     args_file = ctx.actions.declare_file("{}@shellcheck.params".format(ctx.label.name))
     ctx.actions.write(args_file, args)
-
     ctx.actions.write(
         output = ctx.outputs.bin,
         content = "\n".join([
@@ -17,22 +15,19 @@ def _shellcheck_test_implementation(ctx):
         ),
         is_executable = True,
     )
-
-    default_info = DefaultInfo(
+    return [DefaultInfo(
         executable = ctx.outputs.bin,
         files = depset(),
         runfiles = ctx.runfiles(
             collect_data = True,
             collect_default = True,
-            files = [args_file] + ctx.files.src + ctx.files._shellcheck,
+            files = [args_file] + ctx.files.srcs + ctx.files._shellcheck,
         ),
-    )
-
-    return [default_info]
+    )]
 
 shellcheck_test = rule(
     attrs = {
-        "src": attr.label_list(
+        "srcs": attr.label_list(
             allow_files = True,
         ),
         "_shellcheck": attr.label(

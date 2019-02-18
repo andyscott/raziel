@@ -1,6 +1,6 @@
-load("//tools:shellcheck.bzl", "shellcheck_test")
+load("//tools:shell.bzl", "shell_binary")
 
-sh_binary(
+shell_binary(
     name = "ci",
     srcs = ["src/ci.sh"],
     tags = ["manual"],
@@ -10,16 +10,11 @@ sh_binary(
     ],
 )
 
-sh_binary(
+shell_binary(
     name = "lint",
     srcs = ["src/lint.sh"],
     tags = ["manual"],
     deps = [
         "@bazel_tools//tools/bash/runfiles",
     ],
-)
-
-shellcheck_test(
-    name = "src@shellcheck",
-    src = glob(["src/*.sh"]),
 )
