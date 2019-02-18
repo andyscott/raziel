@@ -26,6 +26,4 @@ cd "${BUILD_WORKSPACE_DIRECTORY:-$(dirname "$0")/..}"
 
 bazel=./tools/bazel
 
-eval "$(runfile archangel_raziel/tasks/lint)"
-
-$bazel build //...
+$bazel query 'kind(shellcheck_test, //...)' | xargs bazel test

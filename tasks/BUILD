@@ -5,6 +5,16 @@ sh_binary(
     srcs = ["src/ci.sh"],
     tags = ["manual"],
     deps = [
+        ":lint",
+        "@bazel_tools//tools/bash/runfiles",
+    ],
+)
+
+sh_binary(
+    name = "lint",
+    srcs = ["src/lint.sh"],
+    tags = ["manual"],
+    deps = [
         "@bazel_tools//tools/bash/runfiles",
     ],
 )
