@@ -1,4 +1,4 @@
-load("//tools:shellcheck.bzl", "shellcheck_test")
+load("@rules_adroit//rules/shellcheck:shellcheck.bzl", "shellcheck_test")
 
 shellcheck_test(
     name = "bazel@shellcheck",

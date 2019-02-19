@@ -1,4 +1,4 @@
-load("//tools:shell.bzl", "shell_binary")
+load("@rules_adroit//rules/shellcheck:shell.bzl", "shell_binary")
 
 shell_binary(
     name = "ci",
