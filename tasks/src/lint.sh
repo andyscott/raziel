@@ -22,4 +22,4 @@ set -euo pipefail
 cd "${BUILD_WORKSPACE_DIRECTORY:-$(dirname "$0")/..}"
 
 bazel=./tools/bazel
-$bazel query 'kind(shellcheck_test, //...)' | xargs bazel test
+$bazel query 'kind(shellcheck_test, //...)' | xargs $bazel test
