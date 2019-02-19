@@ -3,9 +3,11 @@ load("@rules_adroit//rules/shellcheck:shell.bzl", "shell_binary")
 shell_binary(
     name = "ci",
     srcs = ["src/ci.sh"],
+    data = [
+        ":lint",
+    ],
     tags = ["manual"],
     deps = [
-        ":lint",
         "@bazel_tools//tools/bash/runfiles",
     ],
 )
