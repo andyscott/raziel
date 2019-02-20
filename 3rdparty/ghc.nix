@@ -1,10 +1,11 @@
 with (import ./nixpkgs.nix {});
 
 haskellPackages.ghcWithPackages (p: with p; [
-  aeson
-  pipes
-  resourcet
+  exceptions
   split
-  temporary
-  xeno
+  #aeson
+  #pipes
+  #resourcet
+  #temporary
+  #xeno
 ])
