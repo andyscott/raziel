@@ -18,3 +18,4 @@ def raziel_workspace_init():
         repository = "@raziel_nixpkgs",
     )
     native.register_toolchains("//3rdparty/ghc:haskell_toolchain")
+    native.register_toolchains("//toolchains:haskell-proto-toolchain")

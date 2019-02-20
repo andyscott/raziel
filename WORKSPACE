@@ -1,15 +1,15 @@
-workspace(name = "archangel_raziel")
+workspace(name = "raziel")
 
 # If you're reading this, and you want to use Raziel
 # from within another Bazel workspace, you can hopefully just copy...
 
 # BEGIN portable bits
 
-load("@archangel_raziel//tools:workspace_prelude.bzl", "raziel_workspace_prelude")
+load("@raziel//tools:workspace_prelude.bzl", "raziel_workspace_prelude")
 
 raziel_workspace_prelude()
 
-load("@archangel_raziel//tools:workspace_init.bzl", "raziel_workspace_init")
+load("@raziel//tools:workspace_init.bzl", "raziel_workspace_init")
 
 raziel_workspace_init()
 
@@ -35,4 +35,10 @@ nixpkgs_package(
 
 register_toolchains(
     "@rules_adroit//toolchains:shellcheck_from_nixpkgs",
+)
+
+nixpkgs_package(
+    name = "proto-lens-protoc",
+    attribute_path = "haskellPackages.proto-lens-protoc",
+    repository = "@raziel_nixpkgs",
 )
