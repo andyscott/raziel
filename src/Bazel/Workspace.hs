@@ -10,7 +10,7 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeFamilies #-}
 
-module Raziel.Bazel.Workspace
+module Bazel.Workspace
   ( WorkspacePath
   , loadWorkspacePath
   , findWorkspacePath
@@ -91,8 +91,9 @@ resolveBazelPath ws = liftIO $
   fromMaybe (E.throwM $ BazelNotFoundException "bazel runner not found for workspace")
   <$> ( runMaybeT $
         workspaceRootBazel <|>
-        workspaceToolsBazel <|>
-        systemBazel )
+        systemBazel <|>
+        workspaceToolsBazel
+      )
   where
     workspaceRootBazel = resolve $ ws ++ "/bazel"
     workspaceToolsBazel = resolve $ ws ++ "/tools/bazel"
