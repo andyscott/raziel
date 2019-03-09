@@ -24,8 +24,8 @@ haskell_library(
     srcs = ["LabelNode.hs"],
     visibility = ["//visibility:public"],
     deps = [
-        "//3rdparty/ghc:attoparsec",
         "//3rdparty/ghc:base",
+        "//3rdparty/ghc:megaparsec",
         "//3rdparty/ghc:text",
     ],
 )

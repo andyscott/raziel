@@ -1,7 +1,6 @@
 with (import ./nixpkgs.nix {});
 
 haskellPackages.ghcWithPackages (p: with p; [
-  attoparsec
   exceptions
   proto-lens-protoc
   raw-strings-qq
@@ -9,6 +8,7 @@ haskellPackages.ghcWithPackages (p: with p; [
   tasty
   tasty-hunit
   xml-conduit
+  megaparsec
   #aeson
   #pipes
   #resourcet

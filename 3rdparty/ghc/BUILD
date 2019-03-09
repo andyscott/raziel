@@ -35,7 +35,7 @@ nix_deps = [
     "tasty-hunit",
     "xml-conduit",
     "raw-strings-qq",
-    "attoparsec",
+    "megaparsec",
 ]
 
 [
