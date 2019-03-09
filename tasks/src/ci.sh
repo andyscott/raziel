@@ -22,7 +22,7 @@ set -euo pipefail
 cd "${BUILD_WORKSPACE_DIRECTORY:-$(dirname "$0")/..}"
 
 # shellcheck source=/dev/null
-. "$(runfile archangel_raziel/tasks/lint)"
+. "$(runfile raziel/tasks/lint)"
 
 bazel=./tools/bazel
 $bazel build //...

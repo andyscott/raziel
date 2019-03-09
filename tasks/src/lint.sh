@@ -24,7 +24,7 @@ cd "${BUILD_WORKSPACE_DIRECTORY:-$(dirname "$0")/..}"
 bazel=./tools/bazel
 
 $bazel query "$(cat <<-'EOF'
-  let universe = //...
+  let universe = //... - //src/Bazel/BuildEventStream/...
   in
     kind(shellcheck_test, $universe) +
     kind(haskell_lint, $universe)

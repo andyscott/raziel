@@ -11,6 +11,7 @@ import Bazel.LabelNode
 main :: IO ()
 main = defaultMain unitTests
 
+unitTests :: TestTree
 unitTests = testGroup "parseLabelNode" [yays, nays]
   where
     yays = testGroup "valid"

@@ -30,6 +30,7 @@ def haskell_test(**kwargs):
     upstream_haskell_test(**kwargs)
     upstream_haskell_lint(
         name = "%s@lint" % kwargs["name"],
+        testonly = True,
         tags = ["manual"],
         deps = [
             ":%s" % kwargs["name"],

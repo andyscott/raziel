@@ -18,10 +18,10 @@ import Test.Tasty
 import Test.Tasty.HUnit
 
 import Text.RawString.QQ
-import Text.XML
 
 import Bazel.Query.Output
 
+main :: IO ()
 main = defaultMain unitTests
 
 checkRuleNode :: Text -> Maybe RuleNode -> TestTree
@@ -32,6 +32,7 @@ checkRuleNode raw expected = testCase ("parseRuleNodeText " ++ (show expected)) 
       Just expected' -> v @?= expected'
       Nothing -> assertFailure $ "unexpected result " ++ (show v)
 
+unitTests :: TestTree
 unitTests = testGroup "Unit tests"
   [ yay [r|
           <rule class="haskell_import" location="/foo/BUILD:39:5" name="//foo:bar">

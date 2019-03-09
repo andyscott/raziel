@@ -19,7 +19,6 @@ module Bazel.Query.Output
   where
 
 import           Control.Exception
-import           Control.Applicative
 import           Control.Monad
 import           Control.Monad.Catch
 import           Data.Maybe
