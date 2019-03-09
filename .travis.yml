@@ -5,6 +5,9 @@ jdk:
 stages:
   - name: test
 
+env:
+  - CONFIG_CI=yes
+
 jobs:
   include:
     - script: ./tools/bazel run //tasks:ci

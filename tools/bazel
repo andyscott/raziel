@@ -90,6 +90,10 @@ extra_command_args=()
 IFS=. read -r major minor _ < <(echo "$bazel_version")
 extra_command_args+=("--config=v$major.$minor")
 
+if [ "${CONFIG_CI:-no}" == "yes" ]; then
+    extra_command_args+=("--config=ci")
+fi
+
 for (( i=1; i<=$#; i++ ))
 do
     case "${!i}" in
