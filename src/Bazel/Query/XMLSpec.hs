@@ -10,7 +10,7 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeFamilies #-}
 
-module Bazel.Query.OutputSpec (main) where
+module Bazel.Query.XMLSpec (main) where
 
 import Data.Text.Lazy
 import Data.Maybe
@@ -19,7 +19,7 @@ import Test.Tasty.HUnit
 
 import Text.RawString.QQ
 
-import Bazel.Query.Output
+import Bazel.Query.XML
 
 main :: IO ()
 main = defaultMain unitTests

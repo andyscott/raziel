@@ -9,8 +9,8 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeFamilies #-}
 
-module Bazel.Query.Output
-  ( Output (..)
+module Bazel.Query.XML
+  ( Result (..)
   , RuleNode (..)
   , parseRuleNodeDocument
   , parseRuleNodeText
@@ -29,8 +29,8 @@ import qualified Data.Map.Strict              as Map
 import           Data.Map.Strict              (Map)
 import           Text.XML
 
-data Output
-  = Output [RuleNode]
+data Result
+  = Result [RuleNode]
   deriving (Eq, Show)
 
 data RuleNode
@@ -43,12 +43,12 @@ data RuleNode
   }
   deriving (Eq, Show)
 
-data OutputException
+data ResultException
   = UnexpectedElement Element
   | MissingAttribute Text
   deriving (Show, Typeable)
 
-instance Exception OutputException
+instance Exception ResultException
 
 parseRuleNodeText :: TL.Text -> Either SomeException RuleNode
 parseRuleNodeText = parseText def >=> parseRuleNodeDocument

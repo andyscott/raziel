@@ -6,8 +6,8 @@ load(
 )
 
 haskell_library(
-    name = "Output",
-    srcs = ["Output.hs"],
+    name = "XML",
+    srcs = ["XML.hs"],
     visibility = ["//visibility:public"],
     deps = [
         "//3rdparty/ghc:base",
@@ -19,12 +19,12 @@ haskell_library(
 )
 
 haskell_test(
-    name = "OutputSpec",
-    srcs = ["OutputSpec.hs"],
-    main_function = "Bazel.Query.OutputSpec.main",
+    name = "XMLSpec",
+    srcs = ["XMLSpec.hs"],
+    main_function = "Bazel.Query.XMLSpec.main",
     visibility = ["//visibility:public"],
     deps = [
-        ":Output",
+        ":XML",
         "//3rdparty/ghc:base",
         "//3rdparty/ghc:raw-strings-qq",
         "//3rdparty/ghc:tasty",
