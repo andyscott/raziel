@@ -38,7 +38,7 @@ unitTests = testGroup "Unit tests"
           <rule class="haskell_import" location="/foo/BUILD:39:5" name="//foo:bar">
           </rule>
           |]
-      $ RuleNode "//foo:bar" "haskell_import" "/foo/BUILD:39:5"
+      $ RuleNode "//foo:bar" "haskell_import" "/foo/BUILD:39:5" [] []
 
   , yay [r|
           <rule class="shellcheck_test" location="/raziel/tools/BUILD:3:1" name="//tools:bazel@shellcheck">
@@ -47,17 +47,23 @@ unitTests = testGroup "Unit tests"
               <label value="//tools:bazel"/>
             </list>
             <rule-input name="//tools:bazel"/>
-            <rule-input name="@bazel_tools//tools/test:collect_coverage"/>
-            <rule-input name="@bazel_tools//tools/test:coverage_report_generator"/>
-            <rule-input name="@bazel_tools//tools/test:coverage_support"/>
             <rule-input name="@bazel_tools//tools/test:runtime"/>
             <rule-input name="@bazel_tools//tools/test:test_setup"/>
             <rule-input name="@bazel_tools//tools/test:test_wrapper"/>
-            <rule-input name="@bazel_tools//tools/test:test_xml_generator"/>
             <rule-output name="//tools:bazel@shellcheck-bin"/>
           </rule>
           |]
-      $ RuleNode "//tools:bazel@shellcheck" "shellcheck_test" "/raziel/tools/BUILD:3:1"
+      $ RuleNode
+        "//tools:bazel@shellcheck"
+        "shellcheck_test"
+        "/raziel/tools/BUILD:3:1"
+        [ "//tools:bazel"
+        , "@bazel_tools//tools/test:runtime"
+        , "@bazel_tools//tools/test:test_setup"
+        , "@bazel_tools//tools/test:test_wrapper"
+        ]
+        [ "//tools:bazel@shellcheck-bin"
+        ]
   ]
   where
     yay raw = checkRuleNode raw . Just
