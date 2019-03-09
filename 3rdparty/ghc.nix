@@ -1,10 +1,17 @@
 with (import ./nixpkgs.nix {});
 
 haskellPackages.ghcWithPackages (p: with p; [
-  aeson
-  pipes
-  resourcet
+  attoparsec
+  exceptions
+  proto-lens-protoc
+  raw-strings-qq
   split
-  temporary
-  xeno
+  tasty
+  tasty-hunit
+  xml-conduit
+  #aeson
+  #pipes
+  #resourcet
+  #temporary
+  #xeno
 ])

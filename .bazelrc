@@ -1,5 +1,6 @@
 common --announce_rc
 common --color=yes
+common:ci --curses=no
 
 build --experimental_strict_action_env
 build --javacopt="-source 8 -target 8"

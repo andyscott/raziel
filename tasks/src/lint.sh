@@ -22,4 +22,11 @@ set -euo pipefail
 cd "${BUILD_WORKSPACE_DIRECTORY:-$(dirname "$0")/..}"
 
 bazel=./tools/bazel
-$bazel query 'kind(shellcheck_test, //...)' | xargs $bazel test
+
+$bazel query "$(cat <<-'EOF'
+  let universe = //... - //src/Bazel/BuildEventStream/...
+  in
+    kind(shellcheck_test, $universe) +
+    kind(haskell_lint, $universe)
+EOF
+)" | xargs $bazel test
