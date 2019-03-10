@@ -1,7 +1,9 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FunctionalDependencies #-}
 {-# LANGUAGE GADTs #-}
-{-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE DerivingStrategies #-}
+{-# LANGUAGE DerivingVia        #-}
+{-# LANGUAGE DeriveGeneric      #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE QuasiQuotes #-}
@@ -14,12 +16,15 @@ module Bazel.Query.XML
   , RuleNode (..)
   , parseRuleNodeDocument
   , parseRuleNodeText
+  , GeneratorNode (..)
   )
   where
 
 import           Control.Exception
 import           Control.Monad
 import           Control.Monad.Catch
+import           GHC.Generics
+import           Data.Monoid.Generic
 import           Data.Maybe
 import           Data.Foldable
 import           Data.Typeable                (Typeable)
@@ -40,6 +45,15 @@ data RuleNode
   , ruleNodeLocation :: Text
   , ruleInputs :: [Text]
   , ruleOutputs :: [Text]
+  , ruleGenerator :: Maybe GeneratorNode
+  }
+  deriving (Eq, Show)
+
+data GeneratorNode
+  = GeneratorNode
+  { generatorName :: Text
+  , generatorFunction :: Text
+  , generatorLocation :: Text
   }
   deriving (Eq, Show)
 
@@ -64,25 +78,60 @@ lookupAttr :: Name -> Map Name Text -> Either SomeException Text
 lookupAttr name attrs =
   fromMaybe (throwM $ MissingAttribute (nameLocalName name)) (Right <$> Map.lookup name attrs)
 
+
+data RuleAttributeState
+  = RuleAttributeState
+  { _ruleInputs :: [Text]
+  , _ruleOutputs :: [Text]
+  , _generatorName :: Maybe Text
+  , _generatorFunction :: Maybe Text
+  , _generatorLocation :: Maybe Text
+  }
+  deriving (Generic, Eq)
+  deriving Semigroup via GenericSemigroup RuleAttributeState
+  deriving Monoid    via GenericMonoid RuleAttributeState
+
 parseRuleNodeElement :: Element -> Either SomeException RuleNode
 parseRuleNodeElement e =
   RuleNode
-  <$> (lookupAttr "name" attrs)
-  <*> (lookupAttr "class" attrs)
-  <*> (lookupAttr "location" attrs)
-  <*> ((\ ~(i, _) -> i) <$> parsedNodes)
-  <*> ((\ ~(_, o) -> o) <$> parsedNodes)
+  <$> lookupAttr "name" attrs
+  <*> lookupAttr "class" attrs
+  <*> lookupAttr "location" attrs
+  <*> fmap _ruleInputs innerData
+  <*> fmap _ruleOutputs innerData
+  <*> fmap (\z -> GeneratorNode
+        <$> (_generatorName z)
+        <*> (_generatorFunction z)
+        <*> (_generatorLocation z)) innerData
   where
     attrs = elementAttributes e
-    parsedNodes = parseNodesM $ elementNodes e
+    innerData = parseChildren $ elementNodes e
 
-    parseNodesM :: [Node] -> Either SomeException ([Text], [Text])
-    parseNodesM =
-      foldrM (\n ~(i, o) ->
+    parseChildren :: [Node] -> Either SomeException RuleAttributeState
+    parseChildren =
+      foldrM (\n s ->
                case n of
                  NodeElement e' -> case (unpack $ nameLocalName $ elementName e') of
-                   "rule-input" -> (\i' -> (i' : i, o)) <$> (lookupAttr "name" $ elementAttributes e')
-                   "rule-output" -> (\o' -> (i, o' : o)) <$> (lookupAttr "name" $ elementAttributes e')
-                   _ -> pure (i, o)
-                 _ -> pure (i, o)
+                   "rule-input" ->
+                     (\v -> s { _ruleInputs = v : _ruleInputs s }) <$>
+                     (lookupAttr "name" $ elementAttributes e')
+                   "rule-output" ->
+                     (\v -> s { _ruleOutputs = v : _ruleOutputs s }) <$>
+                     (lookupAttr "name" $ elementAttributes e')
+                   "string" ->
+                     let attrs' = elementAttributes e'
+                     in case lookupAttr "name" attrs' of
+                       Right "generator_name" ->
+                         (\v -> s { _generatorName = Just v }) <$>
+                         (lookupAttr "value" attrs')
+                       Right "generator_function" ->
+                         (\v -> s { _generatorFunction = Just v }) <$>
+                         (lookupAttr "value" attrs')
+                       Right "generator_location" ->
+                         (\v -> s { _generatorLocation = Just v }) <$>
+                         (lookupAttr "value" attrs')
+                       _ -> pure s
+
+                   _ -> pure s
+                 _ -> pure s
             ) mempty

@@ -13,6 +13,7 @@ haskell_library(
         "//3rdparty/ghc:base",
         "//3rdparty/ghc:containers",
         "//3rdparty/ghc:exceptions",
+        "//3rdparty/ghc:generic-monoid",
         "//3rdparty/ghc:text",
         "//3rdparty/ghc:xml-conduit",
     ],

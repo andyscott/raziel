@@ -36,6 +36,7 @@ nix_deps = [
     "xml-conduit",
     "raw-strings-qq",
     "megaparsec",
+    "generic-monoid",
 ]
 
 [

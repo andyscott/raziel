@@ -9,6 +9,7 @@ haskellPackages.ghcWithPackages (p: with p; [
   tasty-hunit
   xml-conduit
   megaparsec
+  generic-monoid
   #aeson
   #pipes
   #resourcet

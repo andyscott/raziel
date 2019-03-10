@@ -38,7 +38,7 @@ unitTests = testGroup "Unit tests"
           <rule class="haskell_import" location="/foo/BUILD:39:5" name="//foo:bar">
           </rule>
           |]
-      $ RuleNode "//foo:bar" "haskell_import" "/foo/BUILD:39:5" [] []
+      $ RuleNode "//foo:bar" "haskell_import" "/foo/BUILD:39:5" [] [] Nothing
 
   , yay [r|
           <rule class="shellcheck_test" location="/raziel/tools/BUILD:3:1" name="//tools:bazel@shellcheck">
@@ -64,6 +64,22 @@ unitTests = testGroup "Unit tests"
         ]
         [ "//tools:bazel@shellcheck-bin"
         ]
+        Nothing
+
+  , yay [r|
+          <rule class="haskell_test" location="/raziel/src/Bazel/Query/BUILD:21:1" name="//src/Bazel/Query:OutputSpec">
+            <string name="generator_name" value="OutputSpec"/>
+            <string name="generator_function" value="haskell_test"/>
+            <string name="generator_location" value="src/Bazel/Query/BUILD:21"/>
+          </rule>
+        |]
+      $ RuleNode
+        "//src/Bazel/Query:OutputSpec"
+        "haskell_test"
+        "/raziel/src/Bazel/Query/BUILD:21:1"
+        []
+        []
+        (Just $ GeneratorNode "OutputSpec" "haskell_test" "src/Bazel/Query/BUILD:21")
   ]
   where
     yay raw = checkRuleNode raw . Just
