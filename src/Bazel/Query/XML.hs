@@ -1,15 +1,6 @@
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE FunctionalDependencies #-}
-{-# LANGUAGE GADTs #-}
-{-# LANGUAGE DerivingStrategies #-}
 {-# LANGUAGE DerivingVia        #-}
 {-# LANGUAGE DeriveGeneric      #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE QuasiQuotes #-}
-{-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE TemplateHaskell #-}
-{-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE OverloadedStrings  #-}
 
 module Bazel.Query.XML
   ( Result (..)
@@ -109,8 +100,7 @@ parseRuleNodeElement e =
 
     parseChildren :: [Node] -> Either SomeException RuleAttributeState
     parseChildren =
-      foldrM (\n s ->
-               case n of
+      foldrM (\n s -> case n of
                  NodeElement e' -> case (unpack $ nameLocalName $ elementName e') of
                    "rule-input" ->
                      (\v -> s { _ruleInputs = v : _ruleInputs s }) <$>
@@ -131,7 +121,6 @@ parseRuleNodeElement e =
                          (\v -> s { _generatorLocation = Just v }) <$>
                          (lookupAttr "value" attrs')
                        _ -> pure s
-
                    _ -> pure s
                  _ -> pure s
             ) mempty
