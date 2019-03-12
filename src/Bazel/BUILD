@@ -5,6 +5,18 @@ load(
     "haskell_test",
 )
 
+haskell_binary(
+    name = "Graph",
+    srcs = ["Graph.hs"],
+    main_function = "Bazel.Graph.main",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//3rdparty/ghc:base",
+        "//3rdparty/ghc:fgl",
+        "//3rdparty/ghc:fgl-visualize",
+    ],
+)
+
 haskell_library(
     name = "Workspace",
     srcs = ["Workspace.hs"],
@@ -20,8 +32,8 @@ haskell_library(
 )
 
 haskell_library(
-    name = "LabelNode",
-    srcs = ["LabelNode.hs"],
+    name = "Label",
+    srcs = ["Label.hs"],
     visibility = ["//visibility:public"],
     deps = [
         "//3rdparty/ghc:base",
@@ -31,12 +43,12 @@ haskell_library(
 )
 
 haskell_test(
-    name = "LabelNodeSpec",
-    srcs = ["LabelNodeSpec.hs"],
-    main_function = "Bazel.LabelNodeSpec.main",
+    name = "LabelSpec",
+    srcs = ["LabelSpec.hs"],
+    main_function = "Bazel.LabelSpec.main",
     visibility = ["//visibility:public"],
     deps = [
-        ":LabelNode",
+        ":Label",
         "//3rdparty/ghc:base",
         "//3rdparty/ghc:tasty",
         "//3rdparty/ghc:tasty-hunit",

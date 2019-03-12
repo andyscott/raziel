@@ -1,8 +1,8 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Bazel.LabelNode
-  ( LabelNode (..)
-  , parseLabelNode
+module Bazel.Label
+  ( Label (..)
+  , parseLabel
   )
   where
 
@@ -10,27 +10,36 @@ import Prelude hiding (concat)
 
 import           Control.Applicative
 import           Data.Ix (inRange)
-import           Data.Text (Text, concat, pack)
+import           Data.Maybe
+import           Data.Text (Text, concat, pack, unpack)
 import           Data.Void
-import           Text.Megaparsec
+import           Text.Megaparsec hiding (Label)
 import           Text.Megaparsec.Char
 
-data LabelNode
-  = LabelNode
-  { repositoryName :: Maybe Text
-  , packageName :: Maybe Text
+data Label
+  = Label
+  { labelRepositoryName :: Maybe Text
+  , labelPackageName :: Maybe Text
   , labelName :: Maybe Text
   }
-  deriving (Eq, Show)
+  deriving (Eq)
+
+instance Show Label where
+  show (Label Nothing Nothing Nothing) = "???"
+  show (Label (Just r) Nothing Nothing) = unpack $ "@" <> r
+  show (Label Nothing Nothing (Just n)) = unpack $ ":" <> n
+  show (Label r p n) = unpack $
+    (maybe "" (\r' -> "@" <> r') r) <>
+    "//" <> (fromMaybe "" p) <> (maybe "" (\n' -> ":" <> n') n)
 
 
 type Parser = Parsec Void Text
 
-parseLabelNode :: Text -> Maybe LabelNode
-parseLabelNode = either (const Nothing) Just . runParser p "string"
+parseLabel :: Text -> Maybe Label
+parseLabel = either (const Nothing) Just . runParser p "string"
   where
-    p :: Parser LabelNode
-    p = LabelNode <$> repo <*> package <*> name
+    p :: Parser Label
+    p = Label <$> repo <*> package <*> name
 
     -- see:
     -- https://github.com/bazelbuild/bazel/blob/0.23.1/
