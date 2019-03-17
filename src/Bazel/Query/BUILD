@@ -16,6 +16,7 @@ haskell_library(
         "//3rdparty/ghc:generic-monoid",
         "//3rdparty/ghc:text",
         "//3rdparty/ghc:xml-conduit",
+        "//src/Bazel:Label",
     ],
 )
 

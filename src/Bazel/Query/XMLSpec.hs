@@ -22,18 +22,27 @@ import Text.RawString.QQ
 import Bazel.Query.XML
 
 main :: IO ()
-main = defaultMain unitTests
+main = defaultMain $ testGroup "Query XML" [queryNodeTests, ruleNodeTests]
 
-checkRuleNode :: Text -> Maybe RuleNode -> TestTree
-checkRuleNode raw expected = testCase ("parseRuleNodeText " ++ (show expected)) $
-  case parseRuleNodeText raw of
-    Left e -> assertBool (show e) (isNothing expected)
-    Right v -> case expected of
-      Just expected' -> v @?= expected'
-      Nothing -> assertFailure $ "unexpected result " ++ (show v)
+queryNodeTests :: TestTree
+queryNodeTests = testGroup "query nodes"
+  [ yay [r|
+          <?xml version="1.1" encoding="UTF-8" standalone="no"?>
+          <query version="2">
+            <rule class="A1" location="B1" name="C1"></rule>
+            <rule class="A2" location="B2" name="C2"></rule>
+          </query>
+          |]
+      $ QueryNode
+        [ RuleNode "C1" "A1" "B1" [] [] Nothing
+        , RuleNode "C2" "A2" "B2" [] [] Nothing
+        ]
+  ]
+  where
+    yay raw = checkQueryNode raw . Just
 
-unitTests :: TestTree
-unitTests = testGroup "Unit tests"
+ruleNodeTests :: TestTree
+ruleNodeTests = testGroup "rule nodes"
   [ yay [r|
           <rule class="haskell_import" location="/foo/BUILD:39:5" name="//foo:bar">
           </rule>
@@ -83,3 +92,19 @@ unitTests = testGroup "Unit tests"
   ]
   where
     yay raw = checkRuleNode raw . Just
+
+checkRuleNode :: Text -> Maybe RuleNode -> TestTree
+checkRuleNode raw expected = testCase ("parseRuleNodeText " ++ (show expected)) $
+  case parseRuleNodeText raw of
+    Left e -> assertBool (show e) (isNothing expected)
+    Right v -> case expected of
+      Just expected' -> v @?= expected'
+      Nothing -> assertFailure $ "unexpected result " ++ (show v)
+
+checkQueryNode :: Text -> Maybe QueryNode -> TestTree
+checkQueryNode raw expected = testCase ("parseQueryNodeText " ++ (show expected)) $
+  case parseQueryNodeText raw of
+    Left e -> assertBool (show e) (isNothing expected)
+    Right v -> case expected of
+      Just expected' -> v @?= expected'
+      Nothing -> assertFailure $ "unexpected result " ++ (show v)

@@ -10,6 +10,9 @@ haskellPackages.ghcWithPackages (p: with p; [
   xml-conduit
   megaparsec
   generic-monoid
+  fgl
+  fgl-visualize
+  unordered-containers
   #aeson
   #pipes
   #resourcet

@@ -23,6 +23,8 @@ base_deps = [
     "process",
     "text",
     "transformers",
+    "template-haskell",
+    "hashable",
 ]
 
 nix_deps = [
@@ -37,6 +39,9 @@ nix_deps = [
     "raw-strings-qq",
     "megaparsec",
     "generic-monoid",
+    "fgl",
+    "fgl-visualize",
+    "unordered-containers",
 ]
 
 [

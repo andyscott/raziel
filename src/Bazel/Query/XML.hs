@@ -3,8 +3,10 @@
 {-# LANGUAGE OverloadedStrings  #-}
 
 module Bazel.Query.XML
-  ( Result (..)
+  ( QueryNode (..)
   , RuleNode (..)
+  , parseQueryNodeText
+  , parseQueryNodeDocument
   , parseRuleNodeDocument
   , parseRuleNodeText
   , GeneratorNode (..)
@@ -25,8 +27,10 @@ import qualified Data.Map.Strict              as Map
 import           Data.Map.Strict              (Map)
 import           Text.XML
 
-data Result
-  = Result [RuleNode]
+data QueryNode
+  = QueryNode
+  { ruleNodes :: [RuleNode]
+  }
   deriving (Eq, Show)
 
 data RuleNode
@@ -48,12 +52,22 @@ data GeneratorNode
   }
   deriving (Eq, Show)
 
-data ResultException
+data BazelXMLException
   = UnexpectedElement Element
   | MissingAttribute Text
   deriving (Show, Typeable)
 
-instance Exception ResultException
+instance Exception BazelXMLException
+
+parseQueryNodeText :: TL.Text -> Either SomeException QueryNode
+parseQueryNodeText = parseText def >=> parseQueryNodeDocument
+
+parseQueryNodeDocument :: Document -> Either SomeException QueryNode
+parseQueryNodeDocument = (ensureIsQueryNodeElement >=> parseQueryNodeElement) . documentRoot
+  where
+    ensureIsQueryNodeElement e = case (unpack $ nameLocalName $ elementName e) of
+      "query" -> Right e
+      _      -> throwM $ UnexpectedElement e
 
 parseRuleNodeText :: TL.Text -> Either SomeException RuleNode
 parseRuleNodeText = parseText def >=> parseRuleNodeDocument
@@ -65,10 +79,19 @@ parseRuleNodeDocument = (ensureIsRuleNodeElement >=> parseRuleNodeElement) . doc
       "rule" -> Right e
       _      -> throwM $ UnexpectedElement e
 
+parseQueryNodeElement :: Element -> Either SomeException QueryNode
+parseQueryNodeElement e =
+  fmap QueryNode
+  $ traverse parseRuleNodeElement
+  . catMaybes
+  . fmap (\n -> case n of
+            NodeElement ne -> Just ne
+            _              -> Nothing)
+  . elementNodes $ e
+
 lookupAttr :: Name -> Map Name Text -> Either SomeException Text
 lookupAttr name attrs =
   fromMaybe (throwM $ MissingAttribute (nameLocalName name)) (Right <$> Map.lookup name attrs)
-
 
 data RuleAttributeState
   = RuleAttributeState

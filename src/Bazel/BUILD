@@ -12,8 +12,13 @@ haskell_binary(
     visibility = ["//visibility:public"],
     deps = [
         "//3rdparty/ghc:base",
+        "//3rdparty/ghc:containers",
         "//3rdparty/ghc:fgl",
-        "//3rdparty/ghc:fgl-visualize",
+        "//3rdparty/ghc:mtl",
+        "//3rdparty/ghc:text",
+        "//3rdparty/ghc:unordered-containers",
+        "//src/Bazel:Label",
+        "//src/Bazel/Query:XML",
     ],
 )
 
@@ -34,10 +39,13 @@ haskell_library(
 haskell_library(
     name = "Label",
     srcs = ["Label.hs"],
+    lint = False,
     visibility = ["//visibility:public"],
     deps = [
         "//3rdparty/ghc:base",
+        "//3rdparty/ghc:hashable",
         "//3rdparty/ghc:megaparsec",
+        "//3rdparty/ghc:template-haskell",
         "//3rdparty/ghc:text",
     ],
 )
