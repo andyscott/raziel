@@ -5,16 +5,6 @@ load(
     "haskell_test",
 )
 
-haskell_binary(
-    name = "StatsApp",
-    srcs = ["StatsApp.hs"],
-    main_function = "Bazel.BuildEventStream.StatsApp.main",
-    visibility = ["//visibility:public"],
-    deps = [
-        "//3rdparty/ghc:base",
-    ],
-)
-
 haskell_library(
     name = "BuildEventStream",
     srcs = ["BuildEventStream.hs"],
