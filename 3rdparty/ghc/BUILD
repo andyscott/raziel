@@ -42,6 +42,7 @@ nix_deps = [
     "fgl",
     "fgl-visualize",
     "unordered-containers",
+    "optparse-applicative",
 ]
 
 [

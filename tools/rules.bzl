@@ -8,7 +8,6 @@ load(
 
 def haskell_library(**kwargs):
     (rule_args, lint_args) = bifurcate_kwargs(kwargs)
-    print(rule_args)
     upstream_haskell_library(**rule_args)
     if lint_args != None:
         upstream_haskell_lint(**lint_args)

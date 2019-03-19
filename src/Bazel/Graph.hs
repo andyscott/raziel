@@ -21,7 +21,7 @@ import qualified Data.Text.Lazy                 as TL
 data Rel
   = Input
   | Output
-  deriving (Show)
+  deriving (Eq, Show)
 
 data LabelGraph
   = LabelGraph
@@ -70,10 +70,12 @@ work lg = do
   return ()
   where
     start = fst . mkNode_ (nm lg) $ [qlabel| //tasks:ci |]
-    move = suc'
-    cfun :: Context Label Rel -> Label
-    cfun (_, _, a, _) = a
-    res = xdfsWith move cfun [start] (gr lg)
+    next' :: Context a Rel -> [Node]
+    next' (_, _, _, adjOut) =
+      map snd . filter ((==Input) . fst) $ adjOut
+    label' :: Context a b -> a
+    label' (_, _, label, _) = label
+    res = xdfsWith next' label' [start] (gr lg)
 
 main :: IO ()
 main = do
