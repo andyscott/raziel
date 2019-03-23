@@ -5,20 +5,33 @@ module Raziel.Main
   )
   where
 
-import Options.Applicative
-import Data.Semigroup ((<>))
-import Data.Text
-import Bazel.Label
+import           Bazel.Label
+import           Bazel.LabelGraph
+import           Bazel.Workspace
+import           Bazel.Query.XML
+import           Control.Exception
+import           Control.Monad.Except
+import           Data.Semigroup ((<>))
+import           Data.Text
+import qualified Data.Text.Lazy as TL
+import           Options.Applicative
+import           System.Directory (getCurrentDirectory)
+import           System.IO
+import           System.Process hiding (cwd)
 
 data Command
   = Lint
-  | Move Label Label
+  | Move Label Label (Maybe Text)
   | Stats
 
-commandMain :: Command -> IO ()
+commandMain :: Command -> ExceptT SomeException IO ()
 
 main :: IO ()
-main = commandMain =<< execParser opts
+main = do
+  e <- runExceptT . commandMain =<< execParser opts
+  case e of
+    Left  _   -> putStrLn $ "Error!"
+    Right _   -> pure ()
   where
     opts :: ParserInfo Command
     opts = info (commandOpts <**> helper)
@@ -43,8 +56,13 @@ main = commandMain =<< execParser opts
 
     moveOpts :: Parser Command
     moveOpts = Move
-      <$> argument lbl (metavar "<label-from>")
-      <*> argument lbl (metavar "<label-to>")
+      <$> argument lbl ( metavar "<label-from>" )
+      <*> argument lbl ( metavar "<label-to>" )
+      <*> optional ( strOption
+                     $  long "query-file"
+                     <> short 'f'
+                     <> metavar "<query-file>"
+                     <> help "input query" )
 
     statsOpts :: Parser Command
     statsOpts = pure $ Stats
@@ -52,7 +70,22 @@ main = commandMain =<< execParser opts
     lbl :: ReadM Label
     lbl = maybeReader $ parseLabel . pack
 
-commandMain (Move a b) =
-  putStrLn $ "move " ++ (show a) ++ " to " ++ (show b)
+bazelQuery :: Workspace -> String -> IO String
+bazelQuery ws q = do
+  (_, Just hout, _, _) <- createProcess
+    (proc (bazel ws) ["query", q, "--output=xml" ]){ std_out = CreatePipe }
+  hGetContents hout
 
-commandMain _ = putStrLn "This command/arg-combo hasn't been implemented yet"
+commandMain (Move a b _) = do
+  qs <- liftIO $ do
+    cwd <- getCurrentDirectory
+    ws  <- resolveWorkspace cwd
+    bazelQuery ws "//..."
+  q  <- liftEither $ parseQueryNodeText . TL.pack $ qs
+  lg <- liftEither $ toLabelGraph q
+  liftIO $ putStrLn $ "move " ++ (show a) ++ " to " ++ (show b)
+  liftIO $ putStrLn $ "q: " ++ (show $ rdeps a lg)
+  return ()
+
+commandMain _ = do
+  liftIO $ putStrLn "This command/arg-combo hasn't been implemented yet"

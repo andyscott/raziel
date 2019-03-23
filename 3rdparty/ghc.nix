@@ -12,6 +12,7 @@ haskellPackages.ghcWithPackages (p: with p; [
   split
   tasty
   tasty-hunit
+  these
   unordered-containers
   xml-conduit
 ])

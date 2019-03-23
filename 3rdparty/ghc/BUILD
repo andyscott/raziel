@@ -9,7 +9,7 @@ package(default_visibility = ["//visibility:public"])
 haskell_toolchain(
     name = "haskell_toolchain",
     tools = "@raziel_ghc//:bin",
-    version = "8.6.3",
+    version = "8.6.4",
 )
 
 base_deps = [
@@ -19,30 +19,31 @@ base_deps = [
     "deepseq",
     "directory",
     "filepath",
+    "hashable",
     "mtl",
     "process",
+    "template-haskell",
     "text",
     "transformers",
-    "template-haskell",
-    "hashable",
 ]
 
 nix_deps = [
     "exceptions",
-    "split",
-    "proto-lens",
-    "lens-family",
-    "lens-labels",
-    "tasty",
-    "tasty-hunit",
-    "xml-conduit",
-    "raw-strings-qq",
-    "megaparsec",
-    "generic-monoid",
     "fgl",
     "fgl-visualize",
-    "unordered-containers",
+    "generic-monoid",
+    "lens-family",
+    "lens-labels",
+    "megaparsec",
     "optparse-applicative",
+    "proto-lens",
+    "raw-strings-qq",
+    "split",
+    "tasty",
+    "tasty-hunit",
+    "these",
+    "unordered-containers",
+    "xml-conduit",
 ]
 
 [

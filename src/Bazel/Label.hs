@@ -25,7 +25,6 @@ import           Language.Haskell.TH
 import           Language.Haskell.TH.Syntax
 import           Language.Haskell.TH.Quote
 
-
 data Label
   = Label
   { labelRepositoryName :: Maybe Text
@@ -33,6 +32,16 @@ data Label
   , labelName :: Maybe Text
   }
   deriving (Lift, Eq, Ord)
+
+{-|
+resolvedLabelName :: Label -> Text
+resolvedLabelName l =
+  fromMaybe nameFromPackageName $ labelName l
+  where
+    nameFromPackageName :: String
+    nameFromPackageName =
+      (pack . reverse . takeWhile (/='/') . reverse . unpack $ labelPackageName l)
+-}
 
 instance Hashable Label where
   hashWithSalt s (Label a b c) =

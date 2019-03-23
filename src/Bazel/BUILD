@@ -5,14 +5,15 @@ load(
     "haskell_test",
 )
 
-haskell_binary(
-    name = "Graph",
-    srcs = ["Graph.hs"],
-    main_function = "Bazel.Graph.main",
+haskell_library(
+    name = "LabelGraph",
+    srcs = ["LabelGraph.hs"],
+    #main_function = "Bazel.LabelGraph.main",
     visibility = ["//visibility:public"],
     deps = [
         "//3rdparty/ghc:base",
         "//3rdparty/ghc:containers",
+        "//3rdparty/ghc:exceptions",
         "//3rdparty/ghc:fgl",
         "//3rdparty/ghc:mtl",
         "//3rdparty/ghc:text",
@@ -47,6 +48,7 @@ haskell_library(
         "//3rdparty/ghc:megaparsec",
         "//3rdparty/ghc:template-haskell",
         "//3rdparty/ghc:text",
+        "//3rdparty/ghc:these",
     ],
 )
 

@@ -19,9 +19,15 @@ haskell_binary(
     visibility = ["//visibility:public"],
     deps = [
         "//3rdparty/ghc:base",
+        "//3rdparty/ghc:directory",
+        "//3rdparty/ghc:fgl",
+        "//3rdparty/ghc:mtl",
         "//3rdparty/ghc:optparse-applicative",
+        "//3rdparty/ghc:process",
         "//3rdparty/ghc:text",
         "//src/Bazel:Label",
+        "//src/Bazel:LabelGraph",
+        "//src/Bazel:Workspace",
         "//src/Bazel/Query:XML",
     ],
 )

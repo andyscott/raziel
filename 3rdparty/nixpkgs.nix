@@ -1,7 +1,6 @@
 import (fetchTarball {
-  # Nixpkgs checkout from 2019-01-30.
-  url = https://github.com/NixOS/nixpkgs/archive/a5aca72f93715ea7a44e47028ed1404ec1efb525.tar.gz;
+  url = https://github.com/NixOS/nixpkgs/archive/db7be5298809304d55bfc563f2685854baf83aea.tar.gz;
   # to calculate sha:
   # nix-prefetch-url --unpack <url>
-  sha256 = "1k0ggn431z2aj4snq815w788qz4cw3ajs2wgnbhl0idqzqq6gm36";
+  sha256 = "1y434vmbyil7bgxk2jgwyprqnsxj645n8jv7nd6xq5jz5wir6nyg";
 })
