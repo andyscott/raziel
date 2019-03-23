@@ -12,19 +12,16 @@ module Bazel.LabelGraph
 import           Bazel.Label
 import           Bazel.Query.XML
 import           Control.Exception
-import           Control.Monad.Catch
 import           Control.Monad.Except
+import           Control.Monad.State.Lazy
 import           Data.Foldable
 import qualified Data.Graph.Inductive.Graph     as G
 import           Data.Graph.Inductive.Graph     hiding (empty)
 import           Data.Graph.Inductive.NodeMap
 import           Data.Graph.Inductive.PatriciaTree
 import           Data.Graph.Inductive.Query.DFS
-import           Data.Typeable
 import           Data.Text                      hiding (empty, filter, map)
-
-
-import Control.Monad.State.Lazy
+import           Data.Typeable
 
 data Rel
   = Input
@@ -52,9 +49,6 @@ toLabelGraph :: QueryNode -> Either SomeException LabelGraph
 toLabelGraph qn =
   snd <$> runStateT (traverse_ frn $ ruleNodes qn) empty
   where
-    parseLabel' :: Text -> Either SomeException Label
-    parseLabel' t = maybe (throwM $ UnableToParseLabel t) Right $ parseLabel t
-
     addLabel :: Label -> StateT LabelGraph (Either SomeException) ()
     addLabel l = modify f
       where
@@ -70,9 +64,9 @@ toLabelGraph qn =
 
     frn :: RuleNode -> StateT LabelGraph (Either SomeException) ()
     frn rn = do
-      label    <- lift $ parseLabel'          $ ruleNodeName rn
-      inputs   <- lift $ traverse parseLabel' $ ruleInputs   rn
-      outputs  <- lift $ traverse parseLabel' $ ruleOutputs  rn
+      label    <- lift $ parseLabel          $ ruleNodeName rn
+      inputs   <- lift $ traverse parseLabel $ ruleInputs   rn
+      outputs  <- lift $ traverse parseLabel $ ruleOutputs  rn
       addLabel label
       traverse_ addLabel inputs
       traverse_ addLabel outputs

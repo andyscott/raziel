@@ -14,11 +14,15 @@ module Bazel.Label
 import Prelude hiding (concat)
 
 import           Control.Applicative
+import           Control.Exception
+import           Control.Monad.Catch
+import           Data.Bifunctor
+import           Data.Hashable
 import           Data.Ix (inRange)
 import           Data.Maybe
 import           Data.Text (Text, concat, pack, unpack, strip)
+import           Data.Typeable
 import           Data.Void
-import           Data.Hashable
 import           Text.Megaparsec hiding (Label)
 import           Text.Megaparsec.Char
 import           Language.Haskell.TH
@@ -57,11 +61,17 @@ instance Show Label where
     (maybe "" (\r' -> "@" <> r') r) <>
     "//" <> (fromMaybe "" p) <> (maybe "" (\n' -> ":" <> n') n)
 
+data LabelException
+  = UnableToParseLabel (ParseErrorBundle Text Void)
+  deriving (Show, Typeable)
+
+instance Exception LabelException
+
 type Parser = Parsec Void Text
 
 parseLabelQ :: String -> Q Exp
 parseLabelQ t =
-  maybe (fail $ "unable to parse label " ++ t) lift
+  either (\e -> fail $ "unable to parse label " ++ t ++ " due to " ++ (show e)) lift
   . parseLabel . strip . pack $ t
 
 qlabel :: QuasiQuoter
@@ -75,8 +85,10 @@ qlabel
   where notHandled things = error $
           things ++ " are not handled by the label quasiquoter."
 
-parseLabel :: Text -> Maybe Label
-parseLabel = either (const Nothing) Just . runParser p "string"
+parseLabel :: Text -> Either SomeException Label
+parseLabel l = case runParser p "string" l of
+  Left e  -> throwM $ UnableToParseLabel e
+  Right v -> Right v
   where
     p :: Parser Label
     p = Label <$> repo <*> package <*> name

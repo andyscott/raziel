@@ -44,6 +44,7 @@ haskell_library(
     visibility = ["//visibility:public"],
     deps = [
         "//3rdparty/ghc:base",
+        "//3rdparty/ghc:exceptions",
         "//3rdparty/ghc:hashable",
         "//3rdparty/ghc:megaparsec",
         "//3rdparty/ghc:template-haskell",

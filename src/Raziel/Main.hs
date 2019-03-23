@@ -11,6 +11,7 @@ import           Bazel.Workspace
 import           Bazel.Query.XML
 import           Control.Exception
 import           Control.Monad.Except
+import           Data.Bifunctor
 import           Data.Semigroup ((<>))
 import           Data.Text
 import qualified Data.Text.Lazy as TL
@@ -68,7 +69,7 @@ main = do
     statsOpts = pure $ Stats
 
     lbl :: ReadM Label
-    lbl = maybeReader $ parseLabel . pack
+    lbl = eitherReader $ first show . parseLabel . pack
 
 bazelQuery :: Workspace -> String -> IO String
 bazelQuery ws q = do

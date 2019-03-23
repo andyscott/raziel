@@ -47,7 +47,9 @@ parseLabelTests = testGroup "parseLabel" [yays, nays]
       ]
 
     check :: Text -> Maybe Label -> TestTree
-    check raw expected = testCase ("parseLabel " ++ (show raw)) $ parseLabel raw @?= expected
+    check raw expected
+      = testCase ("parseLabel " ++ (show raw))
+      $ (either (const Nothing) Just . parseLabel) raw @?= expected
 
     yay raw = check raw . Just
     nay raw = check raw Nothing
