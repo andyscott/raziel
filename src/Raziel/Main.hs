@@ -15,15 +15,19 @@ import           Data.Bifunctor
 import           Data.Semigroup ((<>))
 import           Data.Text
 import qualified Data.Text.Lazy as TL
+import           Data.These
 import           Options.Applicative
 import           System.Directory (getCurrentDirectory)
 import           System.IO
 import           System.Process hiding (cwd)
+import           System.FilePath (makeRelative, takeFileName, takeDirectory)
 
 data Command
   = Lint
   | Move Label Label (Maybe Text)
   | Stats
+  | FileToLabel String
+  | LabelToFile Label
 
 commandMain :: Command -> ExceptT SomeException IO ()
 
@@ -42,14 +46,22 @@ main = do
       )
 
     commandOpts :: Parser Command
-    commandOpts = hsubparser
-      (  command "lint"  ( info lintOpts
-                         ( progDesc "lint a build" ))
-      <> command "move"  ( info moveOpts
-                         ( progDesc "refactor/move labels" ))
-      <> command "stats" ( info statsOpts
-                         ( progDesc "calculate stats from the build event stream" ))
-      <> commandGroup "WIP commands:"
+    commandOpts
+      = subparser
+      ( commandGroup "big commands:"
+        <> command "lint"   ( info lintOpts
+                            ( progDesc "lint a build" ))
+        <> command "move"   ( info moveOpts
+                            ( progDesc "refactor/move labels" ))
+        <> command "stats"  ( info statsOpts
+                            ( progDesc "calculate stats from the build event stream" ))
+      )
+      <|> subparser
+      ( commandGroup "quick conversions:"
+        <> command "l2f"    ( info l2fOpts
+                            ( progDesc "convert a label to a file" ))
+        <> command "f2l"    ( info f2lOpts
+                            ( progDesc "convert a file to a label" ))
       )
 
     lintOpts :: Parser Command
@@ -67,6 +79,14 @@ main = do
 
     statsOpts :: Parser Command
     statsOpts = pure $ Stats
+
+    l2fOpts :: Parser Command
+    l2fOpts = LabelToFile
+      <$> argument lbl ( metavar "<label>" )
+
+    f2lOpts :: Parser Command
+    f2lOpts = FileToLabel
+      <$> argument str ( metavar "<file>" )
 
     lbl :: ReadM Label
     lbl = eitherReader $ first show . parseLabel . pack
@@ -87,6 +107,12 @@ commandMain (Move a b _) = do
   liftIO $ putStrLn $ "move " ++ (show a) ++ " to " ++ (show b)
   liftIO $ putStrLn $ "q: " ++ (show $ rdeps a lg)
   return ()
+
+commandMain (FileToLabel file) = do
+  ws <- liftIO $ resolveWorkspace file
+  let rel = makeRelative (root ws) file
+  liftIO . putStrLn . prettyString . newRelativeLabel
+    $ These (pack . takeDirectory $ rel) (pack . takeFileName $ rel)
 
 commandMain _ = do
   liftIO $ putStrLn "This command/arg-combo hasn't been implemented yet"

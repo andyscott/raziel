@@ -9,6 +9,9 @@ module Bazel.Label
   , maybeLabel
   , parseLabelQ
   , qlabel
+  , newRelativeLabel
+  , prettyString
+  , prettyText
   )
   where
 
@@ -21,6 +24,7 @@ import           Data.Bifunctor
 import           Data.Hashable
 import           Data.Ix (inRange)
 import           Data.Maybe
+import           Data.These
 import           Data.Text (Text, concat, pack, unpack, strip)
 import           Data.Typeable
 import           Data.Void
@@ -31,17 +35,20 @@ import           Language.Haskell.TH.Syntax
 import           Language.Haskell.TH.Quote
 
 newtype Label = Label RawLabel
-  deriving (Lift, Eq, Ord)
+  deriving (Lift, Eq, Ord, Show)
 
-instance Show Label where
-  show l @ (Label rl) = case rl of
-    RawLabelRPN r p n -> unpack $ "@" <> r <> "//" <> p <> ":" <> n
-    RawLabelR   r     -> unpack $ "@" <> r
-    RawLabelP     p   -> unpack $             "//" <> p
-    RawLabelN       n -> unpack $                          ":" <> n
-    RawLabelRP  r p   -> unpack $ "@" <> r <> "//" <> p
-    RawLabelRN  r   n -> unpack $ "@" <> r <> "//" <>      ":" <> n
-    RawLabelPN    p n -> unpack $             "//" <> p <> ":" <> n
+prettyString :: Label -> String
+prettyString = unpack . prettyText
+
+prettyText :: Label -> Text
+prettyText l @ (Label rl) = case rl of
+    RawLabelRPN r p n -> "@" <> r <> "//" <> p <> ":" <> n
+    RawLabelR   r     -> "@" <> r
+    RawLabelP     p   ->             "//" <> p
+    RawLabelN       n ->                          ":" <> n
+    RawLabelRP  r p   -> "@" <> r <> "//" <> p
+    RawLabelRN  r   n -> "@" <> r <> "//" <>      ":" <> n
+    RawLabelPN    p n ->             "//" <> p <> ":" <> n
 
 data LabelException
   = UnableToParseLabel (ParseErrorBundle Text Void)
@@ -84,7 +91,7 @@ data RawLabel
   | RawLabelRP  Text Text
   | RawLabelRN  Text      Text
   | RawLabelPN       Text Text
-  deriving (Lift, Eq, Ord)
+  deriving (Lift, Eq, Ord, Show)
 
 rawLabelRepositoryName :: RawLabel -> Maybe Text
 rawLabelRepositoryName rl = case rl of
@@ -116,7 +123,6 @@ rawLabelName rl = case rl of
   RawLabelRN  _   n -> Just n
   RawLabelPN    _ n -> Just n
 
-
 packageComponents :: Text -> [Text]
 packageComponents t = case runParser p "string" t of
   Left e   -> [t]
@@ -134,6 +140,9 @@ lastPackageComponent :: Text -> Text
 lastPackageComponent = last . packageComponents
 
 type Parser = Parsec Void Text
+
+newRelativeLabel :: These Text Text -> Label
+newRelativeLabel = Label . these RawLabelP RawLabelN RawLabelPN
 
 maybeLabel :: Maybe Text -> Maybe Text -> Maybe Text -> Maybe Label
 maybeLabel r p n = Label <$> maybeRawLabel r p n
