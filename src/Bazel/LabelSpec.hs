@@ -15,7 +15,7 @@ unitTests :: TestTree
 unitTests = testGroup "Label" [showTests, parseLabelTests]
 
 showTests :: TestTree
-showTests = testGroup "show"
+showTests = testGroup "prettyString"
   [ check (label  Nothing      (Just "foo/bar")  Nothing)     "//foo/bar"
   , check (label  Nothing       Nothing         (Just "baz")) ":baz"
   , check (label  Nothing      (Just "foo/bar") (Just "baz")) "//foo/bar:baz"
@@ -26,7 +26,7 @@ showTests = testGroup "show"
   ]
   where
     check :: Label -> String -> TestTree
-    check l expected = testCase ("show " ++ expected) $ (show l) @?= expected
+    check l expected = testCase ("prettyString " ++ expected) $ (prettyString l) @?= expected
 
 parseLabelTests :: TestTree
 parseLabelTests = testGroup "parseLabel" [yays, nays]
